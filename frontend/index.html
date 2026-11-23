@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gestor de torneos de esports: torneos, equipos, partidas, resultados y crónicas generadas con IA.">
+  <title>Arena · Gestor de Torneos de Esports</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Íconos SVG integrados (sin enlaces externos que puedan romperse) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+      <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.2c2.6.2 4.5 2 4.5 4.8"/></symbol>
+      <symbol id="i-swords" viewBox="0 0 24 24"><path d="M4 4l10 10M4 4v4.5M4 4h4.5M20 4L10 14M20 4v4.5M20 4h-4.5M6.5 14.5l3 3M17.5 14.5l-3 3M5 19l2.5-2.5M19 19l-2.5-2.5"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></symbol>
+      <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3L12 4zM12 10v4M12 17v.5"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8L12 3.5z"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <header class="topbar">
+    <a class="brand" href="#/dashboard" aria-label="Arena, ir al dashboard">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 2l12 7v14l-12 7L4 23V9l12-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M11 20l5-10 5 10M13 16.5h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="brand-name">Arena</span>
+    </a>
+
+    <nav class="nav" aria-label="Navegación principal">
+      <a href="#/dashboard" data-nav="dashboard"><svg class="icon" aria-hidden="true"><use href="#i-dashboard"/></svg><span>Dashboard</span></a>
+      <a href="#/torneos" data-nav="torneos"><svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg><span>Torneos</span></a>
+      <a href="#/equipos" data-nav="equipos"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg><span>Equipos</span></a>
+      <a href="#/partidas" data-nav="partidas"><svg class="icon" aria-hidden="true"><use href="#i-swords"/></svg><span>Partidas</span></a>
+      <a href="#/cronicas" data-nav="cronicas"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg><span>Crónicas IA</span></a>
+    </nav>
+
+    <button type="button" class="btn btn-ghost btn-sm" data-action="reset-data" title="Restaurar los datos de prueba iniciales">
+      <svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg><span class="hide-sm">Restaurar datos de prueba</span>
+    </button>
+  </header>
+
+  <main id="main">
+
+    <!-- ===================== DASHBOARD ===================== -->
+    <section class="view" id="view-dashboard" data-title="Dashboard" hidden>
+      <div id="dash-hero"></div>
+      <div class="stat-strip" id="dash-stats"></div>
+      <div class="grid-2">
+        <article class="panel">
+          <h2>Torneos en juego</h2>
+          <div id="dash-tournaments"></div>
+        </article>
+        <article class="panel">
+          <h2>Tabla de equipos</h2>
+          <div id="dash-standings"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== TORNEOS ===================== -->
+    <section class="view" id="view-torneos" data-title="Torneos" hidden>
+      <div class="view-head">
+        <h1>Torneos</h1>
+        <p>Crea competiciones y sigue su estado de Abierto a Finalizado.</p>
+      </div>
+      <div class="split">
+        <form class="panel form" id="tournament-form" novalidate>
+          <h2>Nuevo torneo</h2>
+          <div class="field">
+            <label for="t-name">Nombre del torneo</label>
+            <input id="t-name" name="name" type="text" maxlength="60" autocomplete="off" placeholder="Copa Andina 2026" aria-required="true">
+            <span class="field-error" data-error-for="name" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="t-game">Videojuego</label>
+            <select id="t-game" name="game" aria-required="true"></select>
+            <span class="field-error" data-error-for="game" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="t-format">Formato</label>
+            <select id="t-format" name="format" aria-required="true"></select>
+            <span class="field-error" data-error-for="format" role="alert"></span>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="t-date">Fecha</label>
+              <input id="t-date" name="date" type="date" aria-required="true">
+              <span class="field-error" data-error-for="date" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="t-prize">Premio</label>
+              <input id="t-prize" name="prize" type="text" maxlength="40" autocomplete="off" placeholder="USD 1.000" aria-required="true">
+              <span class="field-error" data-error-for="prize" role="alert"></span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Crear torneo</button>
+        </form>
+
+        <div>
+          <h2 class="list-title">Torneos registrados <span class="count" id="tournament-count">0</span></h2>
+          <div class="card-list" id="tournament-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== EQUIPOS ===================== -->
+    <section class="view" id="view-equipos" data-title="Equipos" hidden>
+      <div class="view-head">
+        <h1>Equipos</h1>
+        <p>Registra equipos e inscríbelos en los torneos de su juego.</p>
+      </div>
+      <div class="split">
+        <div class="stack">
+          <form class="panel form" id="team-form" novalidate>
+            <h2>Nuevo equipo</h2>
+            <div class="row-2">
+              <div class="field">
+                <label for="e-name">Nombre</label>
+                <input id="e-name" name="name" type="text" maxlength="30" autocomplete="off" placeholder="Nova Esports" aria-required="true">
+                <span class="field-error" data-error-for="name" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="e-tag">Tag</label>
+                <input id="e-tag" name="tag" type="text" maxlength="5" autocomplete="off" placeholder="NVA" aria-required="true">
+                <span class="field-error" data-error-for="tag" role="alert"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="e-game">Juego principal</label>
+              <select id="e-game" name="game" aria-required="true"></select>
+              <span class="field-error" data-error-for="game" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="e-captain">Capitán</label>
+              <input id="e-captain" name="captain" type="text" maxlength="30" autocomplete="off" placeholder="Nick del capitán" aria-required="true">
+              <span class="field-error" data-error-for="captain" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="e-players">Jugadores (opcional)</label>
+              <textarea id="e-players" name="players" rows="2" placeholder="Separados por comas: Zeta, Mako, Rune"></textarea>
+              <span class="field-error" data-error-for="players" role="alert"></span>
+            </div>
+            <button type="submit" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Registrar equipo</button>
+          </form>
+
+          <form class="panel form" id="assign-form" novalidate>
+            <h2>Inscribir en un torneo</h2>
+            <div class="field">
+              <label for="a-tournament">Torneo</label>
+              <select id="a-tournament" name="tournamentId"></select>
+              <span class="field-error" data-error-for="tournamentId" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="a-team">Equipo</label>
+              <select id="a-team" name="teamId"></select>
+              <span class="field-error" data-error-for="teamId" role="alert"></span>
+              <span class="hint">Solo se listan equipos del mismo juego que el torneo.</span>
+            </div>
+            <button type="submit" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Inscribir equipo</button>
+          </form>
+        </div>
+
+        <div>
+          <h2 class="list-title">Equipos registrados <span class="count" id="team-count">0</span></h2>
+          <div class="card-list" id="team-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PARTIDAS ===================== -->
+    <section class="view" id="view-partidas" data-title="Partidas y Resultados" hidden>
+      <div class="view-head">
+        <h1>Partidas y resultados</h1>
+        <p>Registra enfrentamientos con marcador, duración, MVP y estadísticas clave.</p>
+      </div>
+      <div class="split">
+        <form class="panel form" id="match-form" novalidate>
+          <h2>Registrar partida</h2>
+          <div class="field">
+            <label for="m-tournament">Torneo</label>
+            <select id="m-tournament" name="tournamentId" aria-required="true"></select>
+            <span class="field-error" data-error-for="tournamentId" role="alert"></span>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="m-teamA">Equipo A</label>
+              <select id="m-teamA" name="teamAId" aria-required="true"></select>
+              <span class="field-error" data-error-for="teamAId" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="m-teamB">Equipo B</label>
+              <select id="m-teamB" name="teamBId" aria-required="true"></select>
+              <span class="field-error" data-error-for="teamBId" role="alert"></span>
+            </div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label for="m-scoreA">Marcador A</label>
+              <input id="m-scoreA" name="scoreA" type="number" min="0" step="1" inputmode="numeric" placeholder="13">
+              <span class="field-error" data-error-for="scoreA" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="m-scoreB">Marcador B</label>
+              <input id="m-scoreB" name="scoreB" type="number" min="0" step="1" inputmode="numeric" placeholder="9">
+              <span class="field-error" data-error-for="scoreB" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="m-duration">Duración (min)</label>
+              <input id="m-duration" name="duration" type="number" min="1" step="1" inputmode="numeric" placeholder="42">
+              <span class="field-error" data-error-for="duration" role="alert"></span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="m-mvp">Jugador MVP</label>
+            <input id="m-mvp" name="mvpName" type="text" maxlength="30" autocomplete="off" placeholder="Nick del MVP">
+            <span class="field-error" data-error-for="mvpName" role="alert"></span>
+          </div>
+          <div class="row-4">
+            <div class="field">
+              <label for="m-kills">Kills</label>
+              <input id="m-kills" name="kills" type="number" min="0" step="1" inputmode="numeric" value="0">
+              <span class="field-error" data-error-for="kills" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="m-deaths">Muertes</label>
+              <input id="m-deaths" name="deaths" type="number" min="0" step="1" inputmode="numeric" value="0">
+              <span class="field-error" data-error-for="deaths" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="m-assists">Asist.</label>
+              <input id="m-assists" name="assists" type="number" min="0" step="1" inputmode="numeric" value="0">
+              <span class="field-error" data-error-for="assists" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="m-objectives">Objetivos</label>
+              <input id="m-objectives" name="objectives" type="number" min="0" step="1" inputmode="numeric" value="0">
+              <span class="field-error" data-error-for="objectives" role="alert"></span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Registrar partida</button>
+        </form>
+
+        <div>
+          <h2 class="list-title">Partidas jugadas <span class="count" id="match-count">0</span></h2>
+          <div class="card-list" id="match-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CRÓNICAS IA ===================== -->
+    <section class="view" id="view-cronicas" data-title="Crónicas IA" hidden>
+      <div class="view-head">
+        <h1>Crónicas con IA</h1>
+        <p>Convierte los datos de una partida en un post para redes y una crónica para la web del evento.</p>
+      </div>
+      <div class="split">
+        <form class="panel form" id="chron-form" novalidate>
+          <h2>Datos de la partida</h2>
+
+          <fieldset class="mode-switch">
+            <legend class="sr-only">Origen de los datos</legend>
+            <label><input type="radio" name="mode" value="registered" checked><span>Partida registrada</span></label>
+            <label><input type="radio" name="mode" value="quick"><span>Datos rápidos</span></label>
+          </fieldset>
+
+          <div id="chron-registered">
+            <div class="field">
+              <label for="c-match">Partida</label>
+              <select id="c-match" name="matchId"></select>
+              <span class="field-error" data-error-for="matchId" role="alert"></span>
+            </div>
+            <div class="preview" id="chron-preview"></div>
+          </div>
+
+          <div id="chron-quick" hidden>
+            <div class="row-2">
+              <div class="field">
+                <label for="q-teamA">Equipo A</label>
+                <input id="q-teamA" name="teamAName" type="text" maxlength="30" autocomplete="off" placeholder="Nova Esports">
+                <span class="field-error" data-error-for="teamAName" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="q-teamB">Equipo B</label>
+                <input id="q-teamB" name="teamBName" type="text" maxlength="30" autocomplete="off" placeholder="Cóndores GG">
+                <span class="field-error" data-error-for="teamBName" role="alert"></span>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label for="q-game">Videojuego</label>
+                <select id="q-game" name="game"></select>
+                <span class="field-error" data-error-for="game" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="q-tournament">Torneo (opcional)</label>
+                <input id="q-tournament" name="tournamentName" type="text" maxlength="60" autocomplete="off" placeholder="Copa Andina 2026">
+                <span class="field-error" data-error-for="tournamentName" role="alert"></span>
+              </div>
+            </div>
+            <div class="row-3">
+              <div class="field">
+                <label for="q-scoreA">Marcador A</label>
+                <input id="q-scoreA" name="scoreA" type="number" min="0" step="1" inputmode="numeric" placeholder="13">
+                <span class="field-error" data-error-for="scoreA" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="q-scoreB">Marcador B</label>
+                <input id="q-scoreB" name="scoreB" type="number" min="0" step="1" inputmode="numeric" placeholder="9">
+                <span class="field-error" data-error-for="scoreB" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="q-duration">Duración (min)</label>
+                <input id="q-duration" name="duration" type="number" min="1" step="1" inputmode="numeric" placeholder="42">
+                <span class="field-error" data-error-for="duration" role="alert"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="q-mvp">Jugador MVP</label>
+              <input id="q-mvp" name="mvpName" type="text" maxlength="30" autocomplete="off" placeholder="Nick del MVP">
+              <span class="field-error" data-error-for="mvpName" role="alert"></span>
+            </div>
+            <div class="row-4">
+              <div class="field">
+                <label for="q-kills">Kills</label>
+                <input id="q-kills" name="kills" type="number" min="0" step="1" inputmode="numeric" value="0">
+                <span class="field-error" data-error-for="kills" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="q-deaths">Muertes</label>
+                <input id="q-deaths" name="deaths" type="number" min="0" step="1" inputmode="numeric" value="0">
+                <span class="field-error" data-error-for="deaths" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="q-assists">Asist.</label>
+                <input id="q-assists" name="assists" type="number" min="0" step="1" inputmode="numeric" value="0">
+                <span class="field-error" data-error-for="assists" role="alert"></span>
+              </div>
+              <div class="field">
+                <label for="q-objectives">Objetivos</label>
+                <input id="q-objectives" name="objectives" type="number" min="0" step="1" inputmode="numeric" value="0">
+                <span class="field-error" data-error-for="objectives" role="alert"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field api-field">
+            <label for="api-key">API Key de Gemini (opcional)</label>
+            <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Pega tu clave para usar Gemini">
+            <span class="hint">Sin clave, o si falla la conexión, se usa el generador local. La clave solo se guarda en esta pestaña (sessionStorage).</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="generate-btn">
+            <svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg><span>Generar crónica con IA</span>
+          </button>
+        </form>
+
+        <div class="stack" id="chron-results" aria-live="polite">
+          <div class="result-status" id="chron-status" hidden></div>
+
+          <article class="panel output">
+            <div class="output-head">
+              <h2>Post para redes sociales</h2>
+              <button type="button" class="btn btn-ghost btn-sm" data-copy="out-social"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Copiar texto</button>
+            </div>
+            <p class="output-text" id="out-social">Aquí aparecerá el post listo para X o Instagram.</p>
+          </article>
+
+          <article class="panel output">
+            <div class="output-head">
+              <h2>Crónica oficial para la web del evento</h2>
+              <button type="button" class="btn btn-ghost btn-sm" data-copy="out-chronicle"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Copiar texto</button>
+            </div>
+            <p class="output-text" id="out-chronicle">Aquí aparecerá la crónica periodística de la partida.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <!-- Orden de carga: datos -> validaciones -> IA -> controlador -->
+  <script src="js/data.js"></script>
+  <script src="js/validations.js"></script>
+  <script src="js/aiService.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
